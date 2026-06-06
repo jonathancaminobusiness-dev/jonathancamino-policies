@@ -19,7 +19,7 @@
 </head>
 <body>
 <h1>Política de Privacidade</h1>
-<p class="meta">Última atualização: 2026-06-06 — Versão 1.1</p>
+<p class="meta">Última atualização: 2026-06-06 — Versão 1.2</p>
 
 <p>Esta Política de Privacidade descreve como o aplicativo <strong>Spark Base — Instagram Agent</strong>
 (aqui chamado de "o Serviço") coleta, armazena, processa e protege informações relacionadas
@@ -81,22 +81,40 @@ para a operação do Serviço (ver Seção 5).</p>
   <li><strong>2FA (TOTP)</strong> opcional via aplicativo autenticador padrão (Google
       Authenticator, Authy, 1Password). Tentativas de verificação 2FA limitadas a
       5/15min/usuário para prevenir brute force.</li>
-  <li><strong>Senhas</strong> de administrador armazenadas como hash <code>bcrypt</code>
-      com cost 12. Mínimo 12 caracteres, validação de força via <code>zxcvbn</code>.
-      Lockout progressivo após tentativas falhas.</li>
-  <li><strong>Cabeçalhos de segurança HTTP</strong>: HSTS com preload, CSP restritivo,
-      <code>X-Frame-Options: SAMEORIGIN</code>, <code>X-Content-Type-Options: nosniff</code>.
+  <li><strong>Senhas</strong> de administrador armazenadas <strong>exclusivamente</strong> como
+      hash <code>bcrypt</code> com cost 12 (correspondente a ~250ms de cálculo por tentativa).
+      Mínimo 12 caracteres, validação de força via <code>zxcvbn</code>.
+      Lockout progressivo após tentativas falhas. Senhas em plaintext nunca são
+      armazenadas — nem em banco, nem em logs, nem em backups.</li>
+  <li><strong>Rotação de credencial administrativa</strong>: o hash bcrypt da senha
+      pode ser definido via variável de ambiente (<code>PASSWORD_HASH</code>) no painel
+      de orquestração, permitindo trocar a senha sem expor o plaintext em servidores,
+      shell ou histórico de comandos.</li>
+  <li><strong>Cabeçalhos de segurança HTTP</strong>: HSTS com preload (1 ano,
+      <code>includeSubDomains</code>), CSP restritivo, <code>X-Frame-Options: SAMEORIGIN</code>,
+      <code>X-Content-Type-Options: nosniff</code>, <code>Referrer-Policy: strict-origin-when-cross-origin</code>.
       Configurados via <code>helmet</code>.</li>
-  <li><strong>Rate limiting</strong> aplicado a login, registro, verificação 2FA,
-      criação de usuários (admin) e endpoints de API gerais.</li>
+  <li><strong>Rate limiting</strong> aplicado a login (5/15min), registro de novos
+      usuários, verificação 2FA (5/15min — impede brute-force do código TOTP),
+      criação de convites administrativos, e endpoints de API gerais.</li>
   <li><strong>Comunicação cliente-servidor</strong>: HTTPS (TLS 1.2+) com certificado
       Let's Encrypt e renovação automática. Tráfego interno do container restrito.</li>
   <li><strong>Validação SSRF</strong>: requisições HTTP iniciadas pelo Serviço (ex: análise
       de site para enriquecimento de contexto) validam o destino contra ranges privados
-      via regex + resolução DNS, e bloqueiam redirects para endereços internos.</li>
-  <li><strong>Validação de entrada do usuário</strong> no LLM: nomes e textos vindos de
-      Usuários Finais são sanitizados antes de compor prompts ao modelo, evitando
-      ataques de prompt injection.</li>
+      via regex de hostname <em>e</em> resolução DNS (defesa contra DNS rebinding),
+      e bloqueiam redirects HTTP para endereços internos via <code>beforeRedirect</code> hook.</li>
+  <li><strong>Validação de entrada do usuário</strong> no LLM: nomes, textos e metadados
+      vindos de Usuários Finais são sanitizados (remoção de quebras, aspas, caracteres
+      de controle, limite de comprimento) antes de compor prompts ao modelo, evitando
+      ataques de prompt injection. O modelo recebe instrução explícita para tratar
+      qualquer conteúdo de campos do usuário como texto literal, nunca como comando.</li>
+  <li><strong>Defesa em profundidade no painel</strong>: rotas de visualização do
+      dashboard servidas via allowlist explícita (não path traversal); saída HTML
+      sempre escapada via função dedicada (<code>esc()</code>) ao compor templates.</li>
+  <li><strong>Segredos operacionais</strong> (master token administrativo,
+      <code>JWT_SECRET</code>, chaves de API) nunca são impressos em logs. Apenas
+      caminhos de arquivo de credencial são referenciados, exigindo acesso ao
+      filesystem do container para leitura.</li>
 </ul>
 
 <h2>5. Compartilhamento com terceiros</h2>

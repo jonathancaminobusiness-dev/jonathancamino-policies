@@ -19,7 +19,7 @@
 </head>
 <body>
 <h1>Termos de Serviço</h1>
-<p class="meta">Última atualização: 2026-06-03 — Versão 1.0</p>
+<p class="meta">Última atualização: 2026-06-06 — Versão 1.1</p>
 
 <p>Bem-vindo ao <strong>Spark Base — Instagram Agent</strong> ("Serviço"). Ao usar este
 Serviço, você ("Usuário") concorda com os termos abaixo. Se não concordar, por favor não use.</p>
@@ -50,11 +50,25 @@ da Meta. As respostas são geradas por modelo de linguagem (LLM) da Anthropic (C
 <h2>3. Conta e responsabilidade do Usuário</h2>
 <p>O Usuário é responsável por:</p>
 <ul>
-  <li>Manter as credenciais de acesso ao painel administrativo seguras (senha forte e 2FA).</li>
+  <li><strong>Manter as credenciais do painel administrativo seguras</strong>:
+    <ul>
+      <li>Senha com no mínimo 12 caracteres, combinando letras, números e símbolos
+          (validação automática via <code>zxcvbn</code> impede senhas óbvias).</li>
+      <li><strong>Habilitar 2FA</strong> (TOTP via Google Authenticator, Authy ou
+          1Password) — fortemente recomendado.</li>
+      <li><strong>Não compartilhar</strong> a senha com terceiros nem reutilizá-la
+          em outros serviços.</li>
+      <li>Rotacionar a senha periodicamente (a cada 6 meses sugerido) usando
+          o mecanismo de rotação via <code>PASSWORD_HASH</code> ou o fluxo
+          padrão de mudança via painel.</li>
+    </ul>
+  </li>
   <li>Configurar a persona e regras do bot de forma compatível com as
       <a href="https://help.instagram.com/581066165581870">políticas de uso aceitável do Instagram</a>.</li>
   <li>Garantir que as respostas geradas pelo bot não violem direitos de terceiros nem leis aplicáveis.</li>
   <li>Revisar periodicamente as conversas e intervir manualmente quando necessário.</li>
+  <li>Notificar o Controlador imediatamente em caso de suspeita de comprometimento
+      da conta (acesso não autorizado, atividade anômala no log de auditoria).</li>
 </ul>
 
 <h2>4. Limitações do Serviço — Importante sobre IA</h2>
