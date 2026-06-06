@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Política de Privacidade — Instagram Agent</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 760px; margin: 0 auto; padding: 40px 24px; line-height: 1.65;
+         color: #1b1c1b; background: #fcf9f8; }
+  h1, h2 { color: #8b1900; }
+  h1 { border-bottom: 2px solid #8b1900; padding-bottom: 12px; }
+  h2 { margin-top: 36px; }
+  code { background: #f1e8e3; padding: 2px 6px; border-radius: 4px; font-size: 0.95em; }
+  .meta { color: #777; font-size: 0.9em; margin-bottom: 32px; }
+  ul { padding-left: 24px; }
+  a { color: #8b1900; }
+</style>
+</head>
+<body>
+<h1>Política de Privacidade</h1>
+<p class="meta">Última atualização: 2026-06-03 — Versão 1.0</p>
+
+<p>Esta Política de Privacidade descreve como o aplicativo <strong>Spark Base — Instagram Agent</strong>
+(aqui chamado de "o Serviço") coleta, armazena, processa e protege informações relacionadas
+ao uso da automação de mensagens diretas (DMs), comentários e menções do Instagram via
+Meta Graph API.</p>
+
+<p>O Serviço é operado por <strong>Jonathan Camino</strong> (aqui chamado de "Controlador").
+Para questões de privacidade, contato: <a href="mailto:joncarvv@gmail.com">joncarvv@gmail.com</a>.</p>
+
+<h2>1. Quem usa o Serviço</h2>
+<p>O Serviço é utilizado pelo Controlador para automatizar respostas em sua própria conta
+Instagram Business, vinculada via OAuth oficial da Meta. <strong>Usuários do Instagram que
+enviam mensagens à conta conectada são considerados "Usuários Finais"</strong> e seus dados são
+processados conforme descrito abaixo.</p>
+
+<h2>2. Dados coletados</h2>
+<p>Quando um Usuário Final envia uma DM, comenta em um post ou interage com Stories da conta
+Instagram Business conectada, o Serviço pode coletar:</p>
+<ul>
+  <li><strong>Identificador IGSID</strong> (Instagram-Scoped User ID) — identificador único
+      fornecido pela Meta que vincula o usuário ao app, sem expor a conta pública.</li>
+  <li><strong>Conteúdo da mensagem ou comentário</strong> (texto, ID de mídia anexada).</li>
+  <li><strong>Metadados do evento</strong> (timestamp, ID da mensagem, tipo de evento).</li>
+  <li><strong>Informações públicas do perfil</strong> quando disponíveis via Graph API
+      (nome de exibição, foto, contadores) — apenas quando o Usuário Final inicia uma conversa.</li>
+</ul>
+
+<p>O Serviço <strong>não coleta</strong>: senhas, contatos do dispositivo, localização precisa,
+dados de pagamento, ou qualquer informação não relacionada à interação com a conta Instagram
+conectada.</p>
+
+<h2>3. Como os dados são usados</h2>
+<ul>
+  <li>Gerar respostas automatizadas via inteligência artificial (Anthropic Claude API)
+      para responder DMs em nome do Controlador.</li>
+  <li>Manter histórico de conversa por <strong>até 90 dias</strong> para contexto entre mensagens.</li>
+  <li>Identificar comentários com palavras-gatilho cadastradas e disparar resposta privada (DM).</li>
+  <li>Calcular métricas agregadas (volume de DMs, taxa de resposta) para o painel administrativo.</li>
+</ul>
+
+<p>Dados <strong>não são vendidos</strong>, <strong>não são usados para anúncios</strong>,
+e <strong>não são compartilhados</strong> com terceiros exceto quando estritamente necessário
+para a operação do Serviço (ver Seção 5).</p>
+
+<h2>4. Armazenamento e segurança</h2>
+<ul>
+  <li>Dados são armazenados em banco SQLite hospedado em VPS privada, com acesso restrito
+      ao Controlador via autenticação multifator.</li>
+  <li><strong>Tokens da Meta</strong> são criptografados em repouso usando AES-256-GCM com
+      chave derivada por HKDF do segredo da aplicação.</li>
+  <li>Comunicação cliente-servidor sempre via HTTPS (TLS) com certificado emitido por
+      Autoridade Certificadora pública (Let's Encrypt).</li>
+  <li>Senhas de administrador são armazenadas como hash bcrypt com cost 12.</li>
+</ul>
+
+<h2>5. Compartilhamento com terceiros</h2>
+<p>Para gerar respostas automáticas, conteúdo de mensagens pode ser enviado a:</p>
+<ul>
+  <li><strong>Anthropic (Claude API)</strong> — <a href="https://www.anthropic.com/privacy">política</a>.
+      Apenas o texto da mensagem é enviado; nenhum identificador pessoal é compartilhado.
+      A Anthropic se compromete contratualmente a não treinar modelos com dados de API.</li>
+  <li><strong>Meta Platforms</strong> — para enviar respostas via Instagram Graph API.
+      Aplicável aos termos da própria Meta.</li>
+  <li><strong>Google (opcional)</strong> — quando o usuário usa a funcionalidade de
+      agendamento via Google Calendar/Meet, apenas dados estritamente necessários ao
+      agendamento são enviados.</li>
+</ul>
+
+<h2>6. Retenção de dados</h2>
+<ul>
+  <li>Mensagens e conversas: <strong>até 90 dias</strong> após a última interação, depois
+      excluídas automaticamente por job programado.</li>
+  <li>Logs de auditoria: <strong>até 180 dias</strong>, então rotacionados.</li>
+  <li>Tokens de acesso Meta: enquanto a conta estiver conectada. Ao desconectar, são
+      excluídos imediatamente.</li>
+</ul>
+
+<h2>7. Direitos do Usuário Final (LGPD)</h2>
+<p>Em conformidade com a Lei Geral de Proteção de Dados (Lei 13.709/2018), Usuários Finais
+têm direito a:</p>
+<ul>
+  <li>Confirmar a existência de tratamento de seus dados.</li>
+  <li>Acessar seus dados.</li>
+  <li>Solicitar correção de dados incompletos ou desatualizados.</li>
+  <li>Solicitar anonimização, bloqueio ou eliminação de dados desnecessários.</li>
+  <li>Solicitar portabilidade.</li>
+  <li>Solicitar exclusão completa.</li>
+</ul>
+<p>Para exercer qualquer destes direitos, envie email para
+<a href="mailto:joncarvv@gmail.com">joncarvv@gmail.com</a> com seu @ do Instagram. A
+solicitação será atendida em até <strong>15 dias úteis</strong>.</p>
+
+<h2>8. Como solicitar exclusão (Data Deletion)</h2>
+<p>Para que seus dados sejam apagados do nosso sistema:</p>
+<ul>
+  <li>Envie email para <a href="mailto:joncarvv@gmail.com">joncarvv@gmail.com</a> com assunto
+      "Exclusão de dados — &lt;seu @ Instagram&gt;".</li>
+  <li>Ou revogue a permissão do app diretamente no Instagram em Configurações &gt; Apps e sites &gt;
+      Spark Base-IG &gt; Remover.</li>
+</ul>
+<p>Em ambos os casos, todos os dados associados ao seu IGSID serão excluídos em até 30 dias.</p>
+
+<h2>9. Menores de idade</h2>
+<p>O Serviço não é direcionado a menores de 13 anos. Caso o Controlador identifique a coleta
+inadvertida de dados de menores, os dados serão excluídos imediatamente.</p>
+
+<h2>10. Alterações nesta Política</h2>
+<p>Esta política pode ser atualizada para refletir mudanças no Serviço ou requisitos legais.
+Mudanças significativas serão comunicadas via aviso no painel administrativo. A versão
+atual está sempre disponível em <a href="privacy.html">/privacy</a>.</p>
+
+<h2>11. Contato e Encarregado (DPO)</h2>
+<p>Para qualquer questão sobre privacidade ou exercício de direitos:</p>
+<ul>
+  <li><strong>Email</strong>: <a href="mailto:joncarvv@gmail.com">joncarvv@gmail.com</a></li>
+  <li><strong>Resposta esperada</strong>: até 5 dias úteis para perguntas; até 15 dias úteis
+      para solicitações formais sob LGPD.</li>
+</ul>
+
+</body>
+</html>
