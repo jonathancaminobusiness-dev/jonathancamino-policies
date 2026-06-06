@@ -19,7 +19,7 @@
 </head>
 <body>
 <h1>Política de Privacidade</h1>
-<p class="meta">Última atualização: 2026-06-03 — Versão 1.0</p>
+<p class="meta">Última atualização: 2026-06-06 — Versão 1.1</p>
 
 <p>Esta Política de Privacidade descreve como o aplicativo <strong>Spark Base — Instagram Agent</strong>
 (aqui chamado de "o Serviço") coleta, armazena, processa e protege informações relacionadas
@@ -65,14 +65,38 @@ e <strong>não são compartilhados</strong> com terceiros exceto quando estritam
 para a operação do Serviço (ver Seção 5).</p>
 
 <h2>4. Armazenamento e segurança</h2>
+<p>Adotamos controles técnicos compatíveis com práticas atuais de segurança de aplicações:</p>
 <ul>
-  <li>Dados são armazenados em banco SQLite hospedado em VPS privada, com acesso restrito
-      ao Controlador via autenticação multifator.</li>
-  <li><strong>Tokens da Meta</strong> são criptografados em repouso usando AES-256-GCM com
-      chave derivada por HKDF do segredo da aplicação.</li>
-  <li>Comunicação cliente-servidor sempre via HTTPS (TLS) com certificado emitido por
-      Autoridade Certificadora pública (Let's Encrypt).</li>
-  <li>Senhas de administrador são armazenadas como hash bcrypt com cost 12.</li>
+  <li><strong>Banco de dados</strong>: SQLite hospedado em VPS dedicada, volumes persistentes
+      isolados por aplicação. Acesso ao servidor restrito ao Controlador via SSH com chave
+      pública (sem senha).</li>
+  <li><strong>Tokens da Meta</strong> (page access token, user access token) criptografados
+      em repouso com <code>AES-256-GCM</code>. A chave de criptografia é dedicada
+      (<code>META_TOKEN_KEY</code>, 256 bits gerada via CSPRNG) ou derivada via <code>scrypt</code>
+      em deploys legados — separada da chave de assinatura de sessão.</li>
+  <li><strong>Sessões</strong>: cookies <code>HttpOnly + Secure + SameSite=Strict</code>.
+      Tokens de sessão não são acessíveis via JavaScript (à prova de XSS) e não viajam
+      em URLs, query strings ou cabeçalhos <code>Authorization</code> que possam vazar
+      em logs ou referers.</li>
+  <li><strong>2FA (TOTP)</strong> opcional via aplicativo autenticador padrão (Google
+      Authenticator, Authy, 1Password). Tentativas de verificação 2FA limitadas a
+      5/15min/usuário para prevenir brute force.</li>
+  <li><strong>Senhas</strong> de administrador armazenadas como hash <code>bcrypt</code>
+      com cost 12. Mínimo 12 caracteres, validação de força via <code>zxcvbn</code>.
+      Lockout progressivo após tentativas falhas.</li>
+  <li><strong>Cabeçalhos de segurança HTTP</strong>: HSTS com preload, CSP restritivo,
+      <code>X-Frame-Options: SAMEORIGIN</code>, <code>X-Content-Type-Options: nosniff</code>.
+      Configurados via <code>helmet</code>.</li>
+  <li><strong>Rate limiting</strong> aplicado a login, registro, verificação 2FA,
+      criação de usuários (admin) e endpoints de API gerais.</li>
+  <li><strong>Comunicação cliente-servidor</strong>: HTTPS (TLS 1.2+) com certificado
+      Let's Encrypt e renovação automática. Tráfego interno do container restrito.</li>
+  <li><strong>Validação SSRF</strong>: requisições HTTP iniciadas pelo Serviço (ex: análise
+      de site para enriquecimento de contexto) validam o destino contra ranges privados
+      via regex + resolução DNS, e bloqueiam redirects para endereços internos.</li>
+  <li><strong>Validação de entrada do usuário</strong> no LLM: nomes e textos vindos de
+      Usuários Finais são sanitizados antes de compor prompts ao modelo, evitando
+      ataques de prompt injection.</li>
 </ul>
 
 <h2>5. Compartilhamento com terceiros</h2>
@@ -92,9 +116,12 @@ para a operação do Serviço (ver Seção 5).</p>
 <ul>
   <li>Mensagens e conversas: <strong>até 90 dias</strong> após a última interação, depois
       excluídas automaticamente por job programado.</li>
-  <li>Logs de auditoria: <strong>até 180 dias</strong>, então rotacionados.</li>
-  <li>Tokens de acesso Meta: enquanto a conta estiver conectada. Ao desconectar, são
-      excluídos imediatamente.</li>
+  <li>Logs de auditoria (registros de acesso ao painel, ações administrativas):
+      <strong>até 180 dias</strong>, então rotacionados. Conteúdo de mensagens nunca
+      aparece em logs (sanitização automática remove campos sensíveis).</li>
+  <li>Tokens de acesso Meta: enquanto a conta estiver conectada. Ao desconectar (via
+      revogação no Instagram ou via painel administrativo), são excluídos imediatamente.</li>
+  <li>Cookies de sessão: TTL de 24 horas no navegador do administrador.</li>
 </ul>
 
 <h2>7. Direitos do Usuário Final (LGPD)</h2>
